@@ -8,78 +8,95 @@ from selenium.webdriver.common.keys import Keys
 
 from flask import Flask, request, render_template
 
+# key:room, value:capacity dropdown value
+rooms = {
+    "242": "1",
+    "243": "1",
+
+    "108": "2",
+    "202": "2",
+    "210": "2",
+    "211": "2",
+    "212": "2",
+    "214": "2",
+    "215": "2",
+    "216": "2",
+    "217": "2",
+    "218": "2",
+    "219": "2",
+    "223": "2",
+    "224": "2",
+    "229": "2",
+    "230": "2",
+    "232": "2",
+    "233": "2",
+    "235": "2",
+    "237": "2",
+    "238": "2",
+    "240": "2",
+    "G09": "2",
+    "G13": "2",
+    "G14": "2",
+
+    "314": "3",
+    "315": "3",
+
+    "239": "4",
+}
+
 
 def book(room):
-    TWO32 = 12707
-    TWO43 = 0
-
-    if room == "232":
-        room = TWO32
-        dropdown_selection = 2
-    else:
-        room = TWO43
-        dropdown_selection = 1
-
     with open("credentials.txt") as file:
         USR = file.readline()
         PWD = file.readline()
 
-    one_week_ahead = (dt.today() + timedelta(days=6)).strftime("%Y-%m-%d")
+    one_week_ahead = (dt.today() + timedelta(days=5)).strftime("%Y-%m-%d")
     driver = webdriver.Chrome()
 
     driver.get("https://libcal.usfca.edu/r/accessible?lid=946&gid=1617")
-    time.sleep(3)
 
     capacity_box = driver.find_element(By.NAME, "capacity")
     capacity_box.click()
 
-    number_of_people = driver.find_element(By.XPATH, "//option[@value='{}']".format(dropdown_selection))
-    # number_of_people.click()
-    number_of_people.send_keys(Keys.RETURN)
+    number_of_people = driver.find_element(By.XPATH, "//option[@value='{}']".format(rooms.get(room)))
+    number_of_people.click()
 
-    # room_selection = driver.find_element(By.XPATH, "//option[@value='{}']".format(room))
-    room_selection = driver.find_element(By.XPATH, "//option[@value='{}']".format(room))
+    room_selection = driver.find_element(By.XPATH, f"//*[text()={room}]")
     room_selection.click()
-    time.sleep(2)
 
     submit = driver.find_element(By.CLASS_NAME, "btn-primary")
     submit.click()
-    time.sleep(3)
 
     day = driver.find_element(By.NAME, "date")
     day.click()
-    time.sleep(1)
 
     wednesday = driver.find_element(By.XPATH, "//option[@value='{}']".format(one_week_ahead))
     wednesday.click()
-    time.sleep(1)
 
     availability = driver.find_element(By.CLASS_NAME, "btn-primary")
     availability.click()
-    time.sleep(1)
 
     # 4-5pm
     first_hour = driver.find_element(By.XPATH, "//input[@data-start='{} 16:00:00']".format(one_week_ahead))
     first_hour.click()
 
     # 5-6pm
-    second_hour = driver.find_element(By.XPATH, "//input[@data-start='{}' 17:00:00']".format(one_week_ahead))
+    second_hour = driver.find_element(By.XPATH, "//input[@data-start='{} 17:00:00']".format(one_week_ahead))
     second_hour.click()
-    time.sleep(1)
-    
 
-    submit = driver.find_element(By.CLASS_NAME, "btn-primary")
-    submit.click()
-
-    usr_login = driver.find_element(By.XPATH, "//input[@id='username']")
-    usr_login.send_keys(USR)
-
-    pwd_login = driver.find_element(By.XPATH, "//input[@id='password']")
-    pwd_login.send_keys(PWD)
+    submit_times = driver.find_element(By.ID, "s-lc-submit-times")
+    submit_times.click()
     time.sleep(3)
 
-    # submit = driver.find_element(By.CLASS_NAME, "btn-primary")
-    submit.click()
+    usr_login = driver.find_element(By.ID, "username")
+    usr_login.send_keys(USR)
+
+    pwd_login = driver.find_element(By.ID, "password")
+    pwd_login.send_keys(PWD)
+    pwd_login.send_keys(Keys.RETURN)
+
+    final_submit = driver.find_element(By.ID, "btn-form-submit")
+    final_submit.click()
 
 # Initialize app
 app = Flask(__name__)
@@ -93,10 +110,7 @@ def reserveRoom():
 @app.route("/confirmation", methods=["GET", "POST"])
 def confirmation():
     response = request.form.get("action")
-    if response == "232":
-        book(response)
-    else:
-        book(response)
+    book(response)
 
     return render_template("ConfirmationPage.html")
 
