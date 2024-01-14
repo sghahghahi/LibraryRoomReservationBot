@@ -58,7 +58,7 @@ def book(room):
     capacity_box = driver.find_element(By.NAME, "capacity")
     capacity_box.click()
 
-    number_of_people = driver.find_element(By.XPATH, "//option[@value='{}']".format(rooms.get(room)))
+    number_of_people = driver.find_element(By.XPATH, f"//option[@value='{rooms.get(room)}']")
     number_of_people.click()
 
     room_selection = driver.find_element(By.XPATH, f"//*[text()={room}]")
@@ -70,18 +70,18 @@ def book(room):
     day = driver.find_element(By.NAME, "date")
     day.click()
 
-    wednesday = driver.find_element(By.XPATH, "//option[@value='{}']".format(one_week_ahead))
+    wednesday = driver.find_element(By.XPATH, f"//option[@value='{one_week_ahead}']")
     wednesday.click()
 
     availability = driver.find_element(By.CLASS_NAME, "btn-primary")
     availability.click()
 
     # 4-5pm
-    first_hour = driver.find_element(By.XPATH, "//input[@data-start='{} 16:00:00']".format(one_week_ahead))
+    first_hour = driver.find_element(By.XPATH, f"//input[@data-start='{one_week_ahead} 16:00:00']")
     first_hour.click()
 
     # 5-6pm
-    second_hour = driver.find_element(By.XPATH, "//input[@data-start='{} 17:00:00']".format(one_week_ahead))
+    second_hour = driver.find_element(By.XPATH, f"//input[@data-start='{one_week_ahead} 17:00:00']")
     second_hour.click()
 
     submit_times = driver.find_element(By.ID, "s-lc-submit-times")
